@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Query
+from fastapi.middleware.cors import CORSMiddleware 
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from pydantic import BaseModel
@@ -7,6 +8,13 @@ import os
 import json
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # <-- for testing, allow all origins. Replace with your React app URL in production.
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 # Initialize LLM
 llm = ChatOpenAI(model="gpt-4o-mini", temperature=0,  api_key=OPENAI_API_KEY)
@@ -81,4 +89,5 @@ async def send_text(text: str = Query(..., description="Text to send to bot")):
     if response.status_code == 200:
         return {"status": "sent", "text": text}
     else:
+
         return {"status": "failed", "error": response.text}
